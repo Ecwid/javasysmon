@@ -70,4 +70,10 @@
       </javadoc>
   </target>
 
+  <target name="sources">
+    <jar destfile="target/javasysmon-sources.jar">
+      <fileset dir="src/main/java"/>
+    </jar>
+  </target>
+
 </project>
