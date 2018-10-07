@@ -49,6 +49,7 @@ public class JavaSysMon implements Monitor {
 
     static {
         new MacOsXMonitor();
+        new DockerMonitor();
         new LinuxMonitor();
         new WindowsMonitor();
         new SolarisMonitor();
