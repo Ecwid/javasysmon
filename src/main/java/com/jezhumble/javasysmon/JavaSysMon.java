@@ -282,4 +282,8 @@ public class JavaSysMon implements Monitor {
     public void infanticide() {
         killProcessTree(currentPid(), true);
     }
+
+    public Class<? extends Monitor> getMonitorClass() {
+        return monitor.getClass();
+    }
 }
