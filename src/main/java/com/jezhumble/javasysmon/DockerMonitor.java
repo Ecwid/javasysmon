@@ -8,13 +8,22 @@ import java.nio.charset.StandardCharsets;
 
 class DockerMonitor extends LinuxMonitor {
 
+	private static final float DEFAULT_CONTANER_LIMIT = 1000;
+	private static final long MILLIS_IN_ONE_TICK = 10;
 	private static final File CPU_ACTIVITY_FILE = new File("/sys/fs/cgroup/cpuacct/cpuacct.stat");
-	private static final long MILLIS_IN_ONE_TICK = 100;
 	private static final Usage BASE_USAGE = getUsage();
 
+	private final float containerCpuLimit;
+
 	DockerMonitor() {
-		if (CPU_ACTIVITY_FILE.exists()) {
+		boolean cgroupsFileExists = CPU_ACTIVITY_FILE.exists();
+		Float k8sCpuLimit = readContainerCpuLimit();
+
+		if (cgroupsFileExists && k8sCpuLimit != null) {
 			JavaSysMon.setMonitor(this);
+			containerCpuLimit = k8sCpuLimit;
+		} else {
+			containerCpuLimit = -1;
 		}
 	}
 
@@ -27,14 +36,14 @@ class DockerMonitor extends LinuxMonitor {
 		long systemMillis = (now.getSystemTicks() - BASE_USAGE.getSystemTicks()) * MILLIS_IN_ONE_TICK;
 		long idleMillis = totalMillis - userMillis - systemMillis;
 
-		return new CpuTimes(userMillis, systemMillis, idleMillis);
+		return new CpuTimes(userMillis, systemMillis, idleMillis, containerCpuLimit / DEFAULT_CONTANER_LIMIT);
 	}
 
 	/**
-	 * Вытаскивает количество "тиков" из текстового представления
+	 * Extract 'tick' count from text representation
 	 *
-	 * @param usage Строка вида 'user 13123123' или 'system 42424'
-	 * @return собственно, число после user или system
+	 * @param usage String like 'user 13343' or 'system 134'
+	 * @return Usage as number
 	 */
 	private static long extractUsage(String usage) {
 		String[] parts = usage.split(" ");
@@ -49,6 +58,16 @@ class DockerMonitor extends LinuxMonitor {
 			return new Usage(user, system);
 		} catch (Exception e) {
 			return new Usage(0, 0);
+		}
+	}
+
+	private static Float readContainerCpuLimit() {
+		// Our k8s installation set this env variable
+		String cpuLimit = System.getenv("CONTAINER_CPU_LIMIT");
+		try {
+			return Float.parseFloat(cpuLimit);
+		} catch (Exception e) {
+			return null;
 		}
 	}
 }

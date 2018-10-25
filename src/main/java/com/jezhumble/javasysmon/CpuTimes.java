@@ -9,10 +9,17 @@ public class CpuTimes {
     private final long systemMillis;
     private final long idleMillis;
 
-    public CpuTimes(long userMillis, long systemMillis, long idleMillis) {
+    private final float containerCpuFactor;
+
+    public CpuTimes(long userMillis, long systemMillis, long idleMillis, float containerCpuFactor) {
         this.userMillis = userMillis;
         this.systemMillis = systemMillis;
         this.idleMillis = idleMillis;
+        this.containerCpuFactor = containerCpuFactor;
+    }
+
+    public CpuTimes(long userMillis, long systemMillis, long idleMillis) {
+        this(userMillis, systemMillis, idleMillis, 1.0f);
     }
 
     /**
@@ -65,7 +72,10 @@ public class CpuTimes {
         if (getIdleMillis() == previous.getIdleMillis()) {
             return 1f;
         }
-        return 1 - ((float) (getIdleMillis() - previous.getIdleMillis())) /
+
+        float usage = 1 - ((float) (getIdleMillis() - previous.getIdleMillis())) /
                 (float) (getTotalMillis() - previous.getTotalMillis());
+
+        return usage / containerCpuFactor;
     }
 }
