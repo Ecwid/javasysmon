@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-class DockerMonitor extends LinuxMonitor {
+class DockerMonitor implements Monitor {
 
 	private static final float DEFAULT_CONTANER_LIMIT = 1000;
 	private static final long MILLIS_IN_ONE_TICK = 10;
@@ -69,6 +69,51 @@ class DockerMonitor extends LinuxMonitor {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	@Override
+	public String osName() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public int numCpus() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public long cpuFrequencyInHz() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public long uptimeInSeconds() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public MemoryStats physical() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public MemoryStats swap() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public int currentPid() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public ProcessInfo[] processTable() {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
+	}
+
+	@Override
+	public void killProcess(int pid) {
+		throw new UnsupportedOperationException("Not implemented for DockerMonitor");
 	}
 }
 
